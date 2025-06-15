@@ -1,0 +1,3 @@
+C:/Users/jrex1/CLionProjects/vireo/cmake-build-debug/CMakeFiles/vireo.dir
+C:/Users/jrex1/CLionProjects/vireo/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/jrex1/CLionProjects/vireo/cmake-build-debug/CMakeFiles/rebuild_cache.dir
