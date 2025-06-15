@@ -2,6 +2,10 @@
 
 #ifndef TOKENTYPE_H
 #define TOKENTYPE_H
+
+#include <string>
+#include <unordered_map>
+
 namespace Lexer {
     enum class TokenType {
         // Keywords

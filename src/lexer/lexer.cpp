@@ -63,46 +63,130 @@ namespace Lexer {
     void Lexer::ScanToken() {
         char c = Advance();
         switch (c) {
-            case '\n': currentLine++; break;
-
+            case '+': AddToken(TokenType::PLUS); break;
+            case '-':
+                if (PeekNext() == '>') { Advance(); AddToken(TokenType::ARROW); }
+                else { AddToken(TokenType::MINUS); }
+                break;
+            case '*': AddToken(TokenType::MUL); break;
+            case '/': AddToken(TokenType::DIV); break;
+            case '=':
+                if (PeekNext() == '=') { Advance(); AddToken(TokenType::EQUAL_TO); }
+                else { AddToken(TokenType::ASSIGN); }
+                break;
+            case '<': AddToken(TokenType::LESS); break;
+            case '>': AddToken(TokenType::GREATER); break;
+            case '&':
+                if (PeekNext() == '&') { Advance(); AddToken(TokenType::AND); }
+                else { AddToken(TokenType::UNKNOWN); }
+                break;
+            case '|':
+                if (PeekNext() == '|') { Advance(); AddToken(TokenType::OR); }
+                else { AddToken(TokenType::UNKNOWN); }
+                break;
+            case '(': AddToken(TokenType::LEFT_PAREN); break;
+            case ')': AddToken(TokenType::RIGHT_PAREN); break;
+            case '{': AddToken(TokenType::LEFT_BRACE); break;
+            case '}': AddToken(TokenType::RIGHT_BRACE); break;
+            case ',': AddToken(TokenType::COMMA); break;
+            case ':': AddToken(TokenType::COLON); break;
+            case ';': AddToken(TokenType::SEMICOLON); break;
+            case '"': String(); break;
             case ' ':
             case '\t':
             case '\r':
+            case '\n':
                 break;
-
-            default:
+            default: {
                 if (std::isdigit(static_cast<unsigned char>(c)))
                     Number();
                 else if (std::isalpha(static_cast<unsigned char>(c)) || c == '_')
                     Identifier();
                 else
                     AddToken(TokenType::UNKNOWN);
-
+                break;
+            }
         }
     }
+
 
     /**
      * @brief Advances the current character that the source code is on.
      *
      * @returns The character that it just passed.
-     */
+    */
     char Lexer::Advance() {
-        current++;
-        return sourceCode[current - 1];
+        const char c = sourceCode[current++];  // Read current, then advance
+
+        if (c == '\n') {
+            currentLine++;
+            currentChar = 0;
+        } else {
+            currentChar++;
+        }
+
+        return c;
     }
 
     /**
      * @brief Read digits in the source code to form an integer or float literal.
      */
     void Lexer::Number() {
+        while (std::isdigit(Peek())) {
+            Advance();
+        }
 
+        if (Peek() == '.' && std::isdigit(PeekNext())) {
+            Advance();
+
+            while (std::isdigit(Peek())) {
+                Advance();
+            }
+
+            AddToken(TokenType::FLOAT_LITERAL);
+        } else {
+            AddToken(TokenType::INT_LITERAL);
+        }
     }
 
     /**
      * @brief Read the source code as long as characters are letters, digits, or underscores and add a token identifier
     */
     void Lexer::Identifier() {
+        std::string identifier;
 
+        identifier += Advance();
+
+        while (std::isalnum(Peek()) || Peek() == '_') {
+            identifier += Advance();
+        }
+
+        if (const auto tokenType = keywordMap.find(identifier); tokenType != keywordMap.end()) {
+            AddToken(tokenType->second);
+        } else {
+            AddToken(TokenType::IDENTIFIER);
+        }
+    }
+
+    /**
+     * @brief Extracts a string literal from a pair of double quotes.
+    */
+    void Lexer::String() {
+        Advance();
+
+        while (Peek() != '"' && !IsAtEnd()) {
+            Advance();
+        }
+
+        if (IsAtEnd()) {
+            AddToken(TokenType::UNKNOWN);
+            return;
+        }
+
+        Advance();
+
+        std::string value = sourceCode.substr(start + 1, current - start - 2); // Will use later to implement into the token.
+        AddToken(TokenType::STRING_LITERAL);
     }
 
     /**
@@ -115,4 +199,34 @@ namespace Lexer {
 
         tokens.emplace_back(type, lexeme, current);
     }
+
+    /**
+     * @brief Checks the current character.
+     *
+     * @returns The next character that the lexer will read.
+     */
+    char Lexer::Peek() const {
+        if (current >= sourceCode.size()) return '\0';
+        return sourceCode[current];
+    }
+
+    /**
+     * @brief Shows the next character that is waiting in the queue.
+     *
+     * @return The next character in the queue.
+    */
+    char Lexer::PeekNext() const {
+        if (current + 1 >= sourceCode.size()) return '\0';
+        return sourceCode[current + 1];
+    }
+
+    /**
+     * @brief Decides whether or not the program has reached the end of the source code.
+     *
+     * @returns Whether the program has reached the end of the source code.
+    */
+    bool Lexer::IsAtEnd() const {
+        return current >= sourceCode.size();
+    }
+
 }

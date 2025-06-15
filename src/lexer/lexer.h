@@ -16,6 +16,25 @@ namespace Lexer {
         int currentLine = 1;
         int currentChar = 0; // Used for error logging if the programmer makes an error. Shows the exact character.
         std::vector<Token> tokens;
+
+        // Maps keyword strings to their corresponding TokenType values
+        const std::unordered_map<std::string, TokenType> keywordMap = {
+            // Keywords
+            {"function", TokenType::FUNCTION},
+            {"if",       TokenType::IF},
+            {"else",     TokenType::ELSE},
+            {"else_if",  TokenType::ELSE_IF},
+            {"while",    TokenType::WHILE},
+            {"for",      TokenType::FOR},
+            {"return",   TokenType::RETURN},
+            {"var",      TokenType::VAR},
+
+            // Types
+            {"int",    TokenType::TYPE_INT},
+            {"float",  TokenType::TYPE_FLOAT},
+            {"string", TokenType::TYPE_STRING},
+            {"bool",   TokenType::TYPE_BOOl}
+        };
     public:
         // Main Functions
         explicit Lexer(const std::string& filePath);
@@ -27,7 +46,11 @@ namespace Lexer {
         char Advance();
         void Number();
         void Identifier();
+        void String();
         void AddToken(TokenType type);
+        char Peek() const;
+        char PeekNext() const;
+        bool IsAtEnd() const;
     };
 }
 
