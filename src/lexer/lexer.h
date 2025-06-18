@@ -3,6 +3,7 @@
 #define LEXER_H
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "token.h"
 
 namespace Lexer {
@@ -33,7 +34,7 @@ namespace Lexer {
             {"int",    TokenType::TYPE_INT},
             {"float",  TokenType::TYPE_FLOAT},
             {"string", TokenType::TYPE_STRING},
-            {"bool",   TokenType::TYPE_BOOl}
+            {"bool",   TokenType::TYPE_BOOL}
         };
     public:
         // Main Functions
@@ -47,7 +48,7 @@ namespace Lexer {
         void Number();
         void Identifier();
         void String();
-        void AddToken(TokenType type);
+        void AddToken(TokenType type, const std::string& lexeme = "");
         char Peek() const;
         char PeekNext() const;
         bool IsAtEnd() const;

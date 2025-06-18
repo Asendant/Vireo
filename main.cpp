@@ -1,6 +1,6 @@
-#include <iostream>
+#include "src/lexer/lexer.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+int main(int argc, char* argv[]) {
+    auto lexer = Lexer::Lexer(argv[1]);
     return 0;
 }

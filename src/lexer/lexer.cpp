@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 namespace Lexer {
     // Main Functions
@@ -32,7 +33,7 @@ namespace Lexer {
             ScanToken();
         }
 
-        tokens.emplace_back(TokenType::END_OF_FILE, "", 0);
+        tokens.emplace_back(TokenType::END_OF_FILE, "", currentLine);
 
         return tokens;
     }
@@ -153,13 +154,11 @@ namespace Lexer {
      * @brief Read the source code as long as characters are letters, digits, or underscores and add a token identifier
     */
     void Lexer::Identifier() {
-        std::string identifier;
-
-        identifier += Advance();
-
         while (std::isalnum(Peek()) || Peek() == '_') {
-            identifier += Advance();
+            Advance();
         }
+
+        std::string identifier = sourceCode.substr(start, current - start);
 
         if (const auto tokenType = keywordMap.find(identifier); tokenType != keywordMap.end()) {
             AddToken(tokenType->second);
@@ -172,8 +171,6 @@ namespace Lexer {
      * @brief Extracts a string literal from a pair of double quotes.
     */
     void Lexer::String() {
-        Advance();
-
         while (Peek() != '"' && !IsAtEnd()) {
             Advance();
         }
@@ -185,8 +182,8 @@ namespace Lexer {
 
         Advance();
 
-        std::string value = sourceCode.substr(start + 1, current - start - 2); // Will use later to implement into the token.
-        AddToken(TokenType::STRING_LITERAL);
+        const std::string value = sourceCode.substr(start + 1, current - start - 2);
+        AddToken(TokenType::STRING_LITERAL, value);
     }
 
     /**
@@ -194,10 +191,9 @@ namespace Lexer {
      *
      * @param type The type of token to add to the list of tokens
     */
-    void Lexer::AddToken(TokenType type) {
-        const std::string lexeme = sourceCode.substr(start, current - start);
-
-        tokens.emplace_back(type, lexeme, current);
+    void Lexer::AddToken(TokenType type, const std::string& lexeme) {
+        std::string finalLexeme = lexeme.empty() ? sourceCode.substr(start, current - start) : lexeme;
+        tokens.emplace_back(type, finalLexeme, currentLine);
     }
 
     /**

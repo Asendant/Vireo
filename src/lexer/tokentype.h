@@ -11,7 +11,7 @@ namespace Lexer {
         // Keywords
         FUNCTION, IF, ELSE, ELSE_IF, WHILE, FOR, RETURN, VAR,
         // Types
-        TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOl,
+        TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOL,
         // Literals and Identifiers
         IDENTIFIER, INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, BOOL_LITERAL,
         // Operators
