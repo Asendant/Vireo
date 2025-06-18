@@ -18,6 +18,15 @@ namespace Lexer {
         int currentChar = 0; // Used for error logging if the programmer makes an error. Shows the exact character.
         std::vector<Token> tokens;
 
+        // Operators
+        // PLUS, MINUS, MUL, DIV,
+        // EQUAL_TO, LESS, GREATER,
+        // AND, OR, ASSIGN,
+        // // Punctuation
+        // LEFT_PAREN, RIGHT_PAREN,
+        // LEFT_BRACE, RIGHT_BRACE,
+        // COMMA, COLON, SEMICOLON, ARROW,
+
         // Maps keyword strings to their corresponding TokenType values
         const std::unordered_map<std::string, TokenType> keywordMap = {
             // Keywords
@@ -34,11 +43,13 @@ namespace Lexer {
             {"int",    TokenType::TYPE_INT},
             {"float",  TokenType::TYPE_FLOAT},
             {"string", TokenType::TYPE_STRING},
-            {"bool",   TokenType::TYPE_BOOL}
+            {"bool",   TokenType::TYPE_BOOL},
+            {"true", TokenType::BOOL_LITERAL},
+            {"false", TokenType::BOOL_LITERAL},
         };
     public:
         // Main Functions
-        explicit Lexer(const std::string& filePath);
+        explicit Lexer(const std::string& source, bool fromFile);
         std::vector<Token> Tokenize();
 
         // Helper Functions

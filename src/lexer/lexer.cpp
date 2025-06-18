@@ -1,4 +1,3 @@
-#pragma once
 #include "lexer.h"
 #include "token.h"
 #include <vector>
@@ -11,10 +10,15 @@ namespace Lexer {
     /**
      * @brief Creates the object for the lexer, reads the source code file and parses it into a string, and sets the starting and current positions.
      *
-     * @param filePath The path to the file that contains the source code.
+     * @param source The path to the file that contains the source code.
+     * @param fromFile Has the lexer read the file from the file path if it is, or just use the source as the sourceCode
      */
-    Lexer::Lexer(const std::string& filePath) {
-        sourceCode = ConvertSourceToString(filePath);
+    Lexer::Lexer(const std::string& source, bool fromFile) {
+        if (fromFile) {
+            sourceCode = ConvertSourceToString(source);
+        } else {
+            sourceCode = source;
+        }
         currentLine = 1;
         currentChar = 0;
 
@@ -28,7 +32,7 @@ namespace Lexer {
     std::vector<Token> Lexer::Tokenize() {
         start = 0;
 
-        while (start < sourceCode.size()) {
+        while (!IsAtEnd()) {
             start = current;
             ScanToken();
         }
@@ -66,24 +70,40 @@ namespace Lexer {
         switch (c) {
             case '+': AddToken(TokenType::PLUS); break;
             case '-':
-                if (PeekNext() == '>') { Advance(); AddToken(TokenType::ARROW); }
-                else { AddToken(TokenType::MINUS); }
+                if (Peek() == '>') {
+                    Advance();
+                    AddToken(TokenType::ARROW);
+                } else {
+                    AddToken(TokenType::MINUS);
+                }
                 break;
             case '*': AddToken(TokenType::MUL); break;
             case '/': AddToken(TokenType::DIV); break;
             case '=':
-                if (PeekNext() == '=') { Advance(); AddToken(TokenType::EQUAL_TO); }
-                else { AddToken(TokenType::ASSIGN); }
+                if (Peek() == '=') {
+                    Advance(); // Consume the second '='
+                    AddToken(TokenType::EQUAL_TO);
+                } else {
+                    AddToken(TokenType::ASSIGN);
+                }
                 break;
             case '<': AddToken(TokenType::LESS); break;
             case '>': AddToken(TokenType::GREATER); break;
             case '&':
-                if (PeekNext() == '&') { Advance(); AddToken(TokenType::AND); }
-                else { AddToken(TokenType::UNKNOWN); }
+                if (Peek() == '&') {
+                    Advance(); // Consume second '&'
+                    AddToken(TokenType::AND);
+                } else {
+                    AddToken(TokenType::UNKNOWN);
+                }
                 break;
             case '|':
-                if (PeekNext() == '|') { Advance(); AddToken(TokenType::OR); }
-                else { AddToken(TokenType::UNKNOWN); }
+                if (Peek() == '|') {
+                    Advance(); // Consume second '|'
+                    AddToken(TokenType::OR);
+                } else {
+                    AddToken(TokenType::UNKNOWN);
+                }
                 break;
             case '(': AddToken(TokenType::LEFT_PAREN); break;
             case ')': AddToken(TokenType::RIGHT_PAREN); break;
@@ -217,7 +237,7 @@ namespace Lexer {
     }
 
     /**
-     * @brief Decides whether or not the program has reached the end of the source code.
+     * @brief Decides whether the program has reached the end of the source code.
      *
      * @returns Whether the program has reached the end of the source code.
     */
